@@ -1,4 +1,4 @@
-# CLI tool to get random a image from unsplash and set it as a backgroud image (wallpaper) on macos
+# CLI tool to get a random image from unsplash and set it as a backgroud image (wallpaper) on macos
 
 ## Requirements
 - `Ruby`
