@@ -8,11 +8,14 @@ class Unsplash < Thor
   class_option :size, desc: 'Specify image size', aliases: [:s]
   class_option :headless, type: :boolean, default: true, aliases: [:h], desc: 'Hide browser window'
 
+  def initialize(*args)
+    super
+    @br = Ferrum::Browser.new(headless: options[:headless])
+  end
+
   desc "random", "Get random image"
 
   def random
-    init
-
     if options[:size]
       @br.go_to("https://source.unsplash.com/random/#{options[:size]}")
     else
@@ -27,10 +30,8 @@ class Unsplash < Thor
   option :likes, type: :boolean, desc: "Get user's likes", aliases: [:l]
 
   def user(name)
-    init
-
     @br.go_to("https://source.unsplash.com/user/#{name}") unless options[:likes] && options[:size]
-    @br.go_to("https://source.unsplash.com/user/#{name}/#{options[:size]}") if options[:size] && !options[:likes]
+    @br.go_to("https://source.unsplash.com/user/#{name}/#{options[:size]}") if !options[:likes] && options[:size]
     @br.go_to("https://source.unsplash.com/user/#{name}/likes") if options[:likes] && !options[:size]
     @br.go_to("https://source.unsplash.com/user/#{name}/likes/#{options[:size]}") if options[:likes] && options[:size]
 
@@ -40,8 +41,6 @@ class Unsplash < Thor
   desc "q SEARCH1,SEARCH2", "Get random image from search"
 
   def q(query)
-    init
-
     @br.go_to("https://source.unsplash.com/1920x1080/?#{query}") unless options[:size]
     @br.go_to("https://source.unsplash.com/#{options[:size]}/?#{query}") if options[:size]
 
@@ -49,10 +48,6 @@ class Unsplash < Thor
   end
 
   private
-
-  def init
-    @br = Ferrum::Browser.new(headless: options[:headless])
-  end
 
   def osascript(script)
     system 'osascript', *script.split(/\n/).map { |line| ['-e', line] }.flatten
